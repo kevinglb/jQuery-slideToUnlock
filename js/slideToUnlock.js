@@ -2,8 +2,8 @@
 	var slideToUnlock = function(ele,options){
 		this.$container = ele,
 		this.defaultOptions = {
-			width: this.$container.width() - 4,
-			height: this.$container.height() - 4,
+			width: this.$container.width(),
+			height: this.$container.height(),
 			defaultText: "drag to unlock",
 			successText: "success",
 			defaultBg: "#FFF",
@@ -25,7 +25,7 @@
 		this.unlocked = false;
 	
 		this.init();
-		console.log(this.defaultOptions);
+		//console.log(this.defaultOptions);
 
 	};
 
@@ -73,7 +73,7 @@
 			var self = this;
 			var startX = null;
 			var isMob = self.isMobile();
-			console.log(isMob);
+			//console.log(isMob);
 			var maxWidth = self.$unlockBar.width() - self.$handleBar.width();
 			
 			/*
@@ -92,27 +92,38 @@
 			self.$handleBar.on(events["touchstart"],null,handleTouchStart);
 		
 			function handleTouchStart(e){
+				e.preventDefault();
 				startX = e.clientX || e.originalEvent.touches[0].clientX;
 				$(document).on(events["touchmove"],null,handleTouchMove);
 				$(document).on(events["touchend"],null,handleTouchEnd);
 			}
 
 			function handleTouchMove(e){
-				var moveX = e.clientX || e.originalEvent.touches[0].clientX,
-					diffX = moveX - startX < maxWidth ? moveX - startX : maxWidth;
+				e.preventDefault();
+				var moveX = e.clientX || e.originalEvent.touches[0].clientX;
+				if(moveX < startX){
+
+					return;
+				}
+				var	diffX = moveX - startX < maxWidth ? moveX - startX : maxWidth;
+				
 				self.$handleBar.css({
                     left: diffX
                 });
 				self.$progressBar.width(diffX);
 				if(diffX == maxWidth){
 					$(document).off(events["touchmove"],null,handleTouchMove);
+					$(document).off(events["touchend"], null, handleTouchEnd);
+					self.$handleBar.off(events["touchstart"],null,handleTouchStart);
 					startX = null;
 					self.successUnlock();	
 				}
-				e.preventDefault();
+				
 			}
 			
 			function handleTouchEnd(e){
+				e.preventDefault();
+
 				if(!self.unlocked){
 					self.$progressBar.animate({
                         width: 0
@@ -121,14 +132,16 @@
                         left: 0
                     }, 250,"linear");
 				}
+				
 				$(document).off(events["touchmove"], null, handleTouchMove);
 				$(document).off(events["touchend"], null, handleTouchEnd);
+				
 			}
 		},
 
 		successUnlock: function(){
 			var self = this;
-			
+			//self.$container.addClass("success");
 			self.$progressBar.css({"background-color": self.options.successBg,});
             self.$text.css({color: self.options.successTextColor});
             self.$text.text(self.options.successText);

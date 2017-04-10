@@ -44,7 +44,20 @@ body, html { font-size: 100%; 	padding: 0; margin: 0;}
 .clearfix:after {
 	clear: both;
 }
-
+.wrapper {
+      padding: 1rem 10%;
+      margin: 2rem auto;
+      min-width: 300px;
+      max-width: 1200px;
+      width: 70%;
+    }
+.bar{
+      height: 40px;
+      margin:40px auto;
+      width: 300px;
+      line-height: 40px;
+      position: relative;
+}
 body{
 	background: #494A5F;
 	color: #D5D6E2;
@@ -54,8 +67,9 @@ body{
 }
 a{ color: rgba(255, 255, 255, 0.6);outline: none;text-decoration: none;-webkit-transition: 0.2s;transition: 0.2s;}
 a:hover,a:focus{color:#74777b;text-decoration: none;}
-.htmleaf-container{
+.container{
 	margin: 0 auto;
+	text-align: center;
 }
 
 .bgcolor-1 { background: #f0efee; }
@@ -92,60 +106,6 @@ a:hover,a:focus{color:#74777b;text-decoration: none;}
 	padding: 0.8em 0 0.5em 0;
 	color: #c3c8cd;
 }
-/*nav*/
-.htmleaf-demo a{color: #fff;text-decoration: none;}
-.htmleaf-demo{width: 100%;padding-bottom: 1.2em;}
-.htmleaf-demo a{display: inline-block;margin: 0.5em;padding: 0.6em 1em;border: 3px solid #fff;font-weight: 700;}
-.htmleaf-demo a:hover{opacity: 0.6;}
-.htmleaf-demo a.current{background:#1d7db1;color: #fff; }
-/* Top Navigation Style */
-.htmleaf-links {
-	position: relative;
-	display: inline-block;
-	white-space: nowrap;
-	font-size: 1.5em;
-	text-align: center;
-}
-
-.htmleaf-links::after {
-	position: absolute;
-	top: 0;
-	left: 50%;
-	margin-left: -1px;
-	width: 2px;
-	height: 100%;
-	background: #dbdbdb;
-	content: '';
-	-webkit-transform: rotate3d(0,0,1,22.5deg);
-	transform: rotate3d(0,0,1,22.5deg);
-}
-
-.htmleaf-icon {
-	display: inline-block;
-	margin: 0.5em;
-	padding: 0em 0;
-	width: 1.5em;
-	text-decoration: none;
-}
-
-.htmleaf-icon span {
-	display: none;
-}
-
-.htmleaf-icon:before {
-	margin: 0 5px;
-	text-transform: none;
-	font-weight: normal;
-	font-style: normal;
-	font-variant: normal;
-	font-family: 'icomoon';
-	line-height: 1;
-	speak: none;
-	-webkit-font-smoothing: antialiased;
-}
-/* footer */
-.htmleaf-footer{width: 100%;padding-top: 10px;}
-.htmleaf-small{font-size: 0.8em;}
 .center{text-align: center;}
 /****/
 .related {

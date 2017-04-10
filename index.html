@@ -6,38 +6,34 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>jQuery sildeUnlock</title>
 	<link rel="stylesheet" type="text/css" href="css/normalize.css" />
-	<link rel="stylesheet" type="text/css" href="css/htmleaf-demo.css">
+	<link rel="stylesheet" type="text/css" href="css/demo.css">
 	<link rel="stylesheet" type="text/css" href="css/unlock.css">
 </head>
 <body>
-	<style type="text/css">
-		
-		.wrapper {
-			padding: 1rem 10%;
-			margin: 2rem auto;
-			min-width: 300px;
-			max-width: 1200px;
-			width: 70%;
-		}
-		.bar {
-			margin: 50px;
-			height: 40px;
-			width: 300px;
-			position: relative;
-		}
-	
-	</style>
-	<div class="htmleaf-container">
+
+	<div class="container">
+		<h1>slideToUnlock(依赖jQuery)</h1>
 		<div class="wrapper">
 			<div class="bar1 bar"></div>
 			<div class="bar2 bar"></div>
 			<div class="bar3 bar"></div>
 			<div class="bar4 bar"></div>
-			<div class="bar5 bar"></div>
+			
+		</div>
+		<h1>slideUnlock</h1>
+		<div class="wrapper">
+			<div class="bar5 bar">
+				<div class="slide-to-unlock-bg ">
+					<span class="slide-to-unlock-text"></span>
+				</div>
+				<div class="slide-to-unlock-progress"></div>
+				<div class="slide-to-unlock-handle"></div>
+			</div>
 		</div>
 	</div>
 	<script src="js/jquery-1.11.0.min.js" type="text/javascript"></script>
 	<script type="text/javascript" src="js/slideToUnlock.js"></script>
+	<script type="text/javascript" src="js/slideUnlock.js"></script>
 	<script type="text/javascript" >
 		$('.bar1').slideToUnlock();
 		$('.bar2').slideToUnlock({
@@ -55,6 +51,7 @@
 			textColor : '#fff',
 			succTextColor : '#fff',
 		});
+		var bar5 = slideUnlock(".bar5");
 	</script>
 </body>
 </html>
