@@ -1,9 +1,10 @@
 ;(function(){
-	this.slideUnlock = function(ele,options,successFn) {
+	var slideUnlock = function(ele,options,successFn) {
 		if(!(this instanceof slideUnlock)){
 			return new slideUnlock(ele,options,successFn);
 		}
 
+		//get the element primarily because the width and height in defaultOptions depend on the element's propterty
 		this.ele = this.validEle(ele) ? document.querySelectorAll(ele)[0] : document;
 		
 		this.defaultOptions = {
@@ -18,7 +19,9 @@
 			progressColor: "#78D02E",
 			handleColor: "#fefefe",
 		};
-
+		/*
+			set the callback function on success, combine user's options with the defaultOptions
+		*/
 		this.successFn = (successFn && this.validFn(successFn)) ? successFn : function(){console.log("unlock succssfully")};
 		this.options = (options && this.validObj(options)) ? Object.assign(this.defaultOptions,options) : this.defaultOptions;
 
@@ -38,17 +41,24 @@
 			var ele = self.ele,
 				options = self.options;
 			
-			self.unlockBar = ele.getElementsByClassName("slide-to-unlock-bg")[0] ? ele.getElementsByClassName("slide-to-unlock-bg")[0] : self.appendBg();
-			self.text = ele.getElementsByClassName("slide-to-unlock-text")[0] ? ele.getElementsByClassName("slide-to-unlock-text")[0] : self.appendText();
-			self.progressBar = ele.getElementsByClassName("slide-to-unlock-progress")[0] ? ele.getElementsByClassName("slide-to-unlock-progress")[0]: self.appendProgress();
-			self.handleBar = ele.getElementsByClassName("slide-to-unlock-handle")[0] ? ele.getElementsByClassName("slide-to-unlock-handle")[0] : self.appendHandle();
+			/*
+				if the corresponding HTML element doesn't exist, we will create one and append to the target element
+			*/	
+			self.unlockBar = ele.getElementsByClassName("slide-to-unlock-bg")[0] || self.createBg();
+			self.text = ele.getElementsByClassName("slide-to-unlock-text")[0] || self.createText();
+			self.progressBar = ele.getElementsByClassName("slide-to-unlock-progress")[0] || self.createProgress();
+			self.handleBar = ele.getElementsByClassName("slide-to-unlock-handle")[0] || self.createHandler();
 
 			self.text.innerText  = options.defaultText;
+
+			/*
+				set the initial styles and bind events
+			*/
 			self.setStyle();
             self.bindEvents();
 		},
 		
-		appendBg: function() {
+		createBg: function() {
 			let self = this;
 
 			var bg = document.createElement("div");
@@ -59,12 +69,13 @@
 			text.classList.add("slide-to-unlock-text");
 
 			bg.appendChild(text);
+			//the unlockBar must be the firstChild of the target element based on the css setting
 			self.ele.insertBefore(bg, self.ele.firstChild);
 
 			return bg;
 		},
 
-		appendText: function() {
+		createText: function() {
 			let self = this;
 
 			var text = document.createElement("span");
@@ -76,7 +87,7 @@
 			return text;
 		},
 
-		appendProgress: function() {
+		createProgress: function() {
 			let self = this;
 
 			var progress = document.createElement("div");
@@ -86,7 +97,7 @@
 			return progress;
 		},
 
-		appendHandle: function() {
+		createHandler: function() {
 			let self = this;
 
 			var handle = document.createElement("div");
@@ -98,11 +109,12 @@
 
 		bindEvents: function(){
 			let self = this;
-			var startX = null;
-			var isMob = self.isMobile();
-			var maxWidth = self.unlockBar.clientWidth - self.handleBar.clientWidth;
+			var startX = null,
+				isMob = self.isMobile(),
+				maxWidth = self.unlockBar.clientWidth - self.handleBar.clientWidth;
+			
 			/*
-				兼容PC和MOB的点击事件
+				Compatible events' names for both PC and Mobile devices
 			*/
 			var events = {
 				"touchstart": isMob ? "touchstart" : "mousedown",
@@ -110,9 +122,8 @@
 				"touchend": isMob ? "touchend" : "mouseup",
 			};
 
-
 			/*
-				开始只绑定touchstart的事件
+				add only touchStart event  at the beginning
 			*/		
 			if(!self.unlocked){
 				self.addEvent(self.handleBar, events["touchstart"], handleTouchStart);
@@ -121,19 +132,19 @@
 			function handleTouchStart(e){
 				e.preventDefault();
 				startX = e.clientX || e.originalEvent.touches[0].clientX;
-				self.addEvent(self.handleBar, events["touchmove"],handleTouchMove);
-				self.addEvent(self.handleBar, events["touchend"],handleTouchEnd);
+				self.addEvent(document, events["touchmove"],handleTouchMove);
+				self.addEvent(document, events["touchend"],handleTouchEnd);
 			}
 
 			function handleTouchMove(e){
 				e.preventDefault();
 				e.stopPropagation();
-				var moveX = e.clientX || e.originalEvent.touches[0].clientX;
-					
-				//disable moving left
+
+				var moveX = e.clientX || e.originalEvent.touches[0].clientX;	
+				//disable moving to left
 				if(moveX < startX){
-					self.rmEvent(self.handleBar, events["touchmove"],handleTouchMove);
-					self.rmEvent(self.handleBar,events["touchend"], handleTouchEnd);
+					self.rmEvent(document, events["touchmove"],handleTouchMove);
+					self.rmEvent(document,events["touchend"], handleTouchEnd);
 					return;
 				}
 
@@ -141,10 +152,13 @@
 				self.handleBar.style.left = diffX + "px";
 				self.progressBar.style.width = diffX + 'px';
 
-				if(diffX == maxWidth){
+				/*
+					if succeed remove all events
+				*/
+				if(diffX === maxWidth){
 					self.rmEvent(self.handleBar, events["touchstart"],handleTouchStart)
-					self.rmEvent(self.handleBar, events["touchmove"],handleTouchMove);
-					self.rmEvent(self.handleBar,events["touchend"], handleTouchEnd);
+					self.rmEvent(document, events["touchmove"],handleTouchMove);
+					self.rmEvent(document, events["touchend"], handleTouchEnd);
 					startX = null;
 					self.successUnlock();	
 				}
@@ -153,31 +167,12 @@
 			
 			function handleTouchEnd(e){
 				if(!self.unlocked){
-					self.progressBar.classList.add("animated");
-					self.handleBar.classList.add("animated");
-					self.addEvent(self.progressBar,self.transitionend,function(){
-						rmAnimation(self.progressBar);
-						setTimeout(function() {
-							self.rmEvent(self.progressBar, self.transitionend, rmAnimation(self.progressBar));
-						},0)
-
-					});
-					self.addEvent(self.handleBar,self.transitionend,function(){
-						rmAnimation(self.handleBar);
-						setTimeout(function() {
-							self.rmEvent(self.handleBar, self.transitionend, rmAnimation(self.handleBar));
-						},0)
-					})
-					
-
-					setTimeout(function(){
-						self.progressBar.style.width = 0;
-                    	self.handleBar.style.left = 0;
-                	},50);
+					self.animate(self.progressBar,{width:'0'},300);
+					self.animate(self.handleBar,{left:'0'},300);
 				}
 				
-				self.rmEvent(self.handleBar,events["touchmove"], handleTouchMove);
-				self.rmEvent(self.handleBar,events["touchend"], handleTouchEnd);
+				self.rmEvent(document,events["touchmove"], handleTouchMove);
+				self.rmEvent(document,events["touchend"], handleTouchEnd);
 			}
 
 			function rmAnimation(ele){
@@ -185,8 +180,29 @@
 			}
 		},
 
-		addEvent: function(target,event,handler){
-			handler 
+		successUnlock: function(){
+			let self = this;
+
+			self.ele.classList.add("success");
+			self.progressBar.style.backgroundColor = self.options.successBg;
+            self.text.style.color =  self.options.successTextColor;
+            self.text.innerText = self.options.successText;
+
+            self.handleBar = null;
+            self.rogressBar = null;
+            self.unlockBar = null;
+            self.text = "";
+            self.unlocked = true;
+
+            /*
+				call the callback function in options with a 50ms delay
+			*/
+            setTimeout(function() {
+                self.successFn && self.successFn();
+            }, 50);
+		},
+
+		addEvent: function(target,event,handler){ 
 			target.addEventListener(event, handler);
 		},
 
@@ -211,24 +227,6 @@
             self.handleBar.style.backgroundColor = options.handleColor;
             self.handleBar.style.height = options.height + 'px';
             self.handleBar.style.width = Math.floor(options.width / 8) + 'px';
-		},
-
-		successUnlock: function(){
-			let self = this;
-			self.ele.classList.add("success");
-			self.progressBar.style.backgroundColor = self.options.successBg;
-            self.text.style.color =  self.options.successTextColor;
-            self.text.innerText = self.options.successText;
-
-            self.handleBar = null;
-            self.rogressBar = null;
-            self.unlockBar = null;
-            self.text = "";
-            self.unlocked = true;
-
-            setTimeout(function() {
-                self.successFn && self.successFn();
-            }, 50);
 		},
 
 		isMobile: function() {
@@ -277,7 +275,49 @@
                 	return transitions[t];
            		}
         	}
-		}
+		},
+
+		execution: function(ele, key, val ,t) {
+			let self = this;
+			var s = (new Date()).getTime(),
+				d = t || 300,
+                b = parseInt(ele.style[key]) || 0,
+                c = val-b;
+
+            (function(){
+               	var t = (new Date()).getTime() - s;
+                if(t > d){
+                   	t = d;
+                    ele.style[key] = tween(t,b,c,d)+'px';
+                    //if(++f==j && callback){callback.apply(elem)}
+                  	// ++f==j && callback && callback.apply(ele);
+                                //这句跟上面注释掉的一句是一个意思，我在google压缩的时候发现了这句
+                                //感觉很不错。
+                    return self;
+                }
+               	
+               	ele.style[key] = tween(t,b,c,d)+'px';
+                setTimeout(arguments.callee,10);
+                //arguments.callee 匿名函数递归调用
+            })();
+
+            function tween(t,b,c,d){
+            	return -c*(t/=d)*(t-2) + b;
+            }
+		},
+
+		animate: function(ele, style, t, fn){
+			let self = this;
+
+			var callback=fn;
+			var j = 0;
+			for(var i in style){
+                //j++;//动画计数器用于判断是否所有动画都完成了。
+                self.execution(ele,i,parseInt(style[i]),t);
+            }
+        }
+
+		
 	}
 		
 	
