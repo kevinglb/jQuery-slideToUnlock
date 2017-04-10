@@ -278,27 +278,29 @@
 		},
 
 		execution: function(ele, key, val ,t) {
+			/*
+				element,
+				style property
+				value to achieve
+				time
+			*/
 			let self = this;
 			var s = (new Date()).getTime(),
 				d = t || 300,
                 b = parseInt(ele.style[key]) || 0,
                 c = val-b;
 
+
             (function(){
                	var t = (new Date()).getTime() - s;
                 if(t > d){
                    	t = d;
                     ele.style[key] = tween(t,b,c,d)+'px';
-                    //if(++f==j && callback){callback.apply(elem)}
-                  	// ++f==j && callback && callback.apply(ele);
-                                //这句跟上面注释掉的一句是一个意思，我在google压缩的时候发现了这句
-                                //感觉很不错。
-                    return self;
                 }
                	
                	ele.style[key] = tween(t,b,c,d)+'px';
                 setTimeout(arguments.callee,10);
-                //arguments.callee 匿名函数递归调用
+
             })();
 
             function tween(t,b,c,d){
@@ -306,14 +308,15 @@
             }
 		},
 
-		animate: function(ele, style, t, fn){
+		animate: function(ele, style, t){
+			/*
+				element
+				style object(including style property and value)
+				time
+			*/
 			let self = this;
-
-			var callback=fn;
-			var j = 0;
-			for(var i in style){
-                //j++;//动画计数器用于判断是否所有动画都完成了。
-                self.execution(ele,i,parseInt(style[i]),t);
+			for(var prop in style){
+                self.execution(ele,prop,parseInt(style[prop]),t);
             }
         }
 
